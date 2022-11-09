@@ -206,7 +206,6 @@ pub const DirMon = struct {
         var fs = util.opaqPtrTo(dptr, *EventSource);
         _ = fs;
         print("unmounted\n", .{});
-        // fs.enable(&me.md.eq, .{}) catch unreachable;
     }
 
     fn workF14(me: *StageMachine, src: ?*StageMachine, dptr: ?*anyopaque) void {

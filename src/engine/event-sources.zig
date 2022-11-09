@@ -80,14 +80,12 @@ pub const EventSource = struct {
         owner: *StageMachine,
         esk: EventSource.Kind,
         essk: EventSource.SubKind,
-//        seqn: u4
     ) EventSource {
         if ((esk != .io) and (essk != .none)) unreachable;
         return EventSource {
             .kind = esk,
             .subkind = essk,
             .owner = owner,
-//            .seqn = seqn,
             .info = switch (esk) {
                 .io => Info{.io = AboutIo{}},
                 .sg => Info{.sg = AboutSignal{}},
