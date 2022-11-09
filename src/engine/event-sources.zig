@@ -39,6 +39,14 @@ pub const EventSource = struct {
         sg, // signal
         tm, // timer
         fs, // file system
+
+        fn is(self: Kind, variant: Kind) bool {
+            return self == variant;
+        }
+
+        fn isNot(self: Kind, variant: Kind) bool {
+            return self != variant;
+        }
     };
 
     /// this is for i/o kind, for all other kinds must be set to 'none'
@@ -205,7 +213,8 @@ pub const EventSource = struct {
     }
 
     pub fn addWatch(self: *Self, path: []const u8, mask: u32) !void {
-        if (self.kind != .fs) unreachable;
+        //if (self.kind != .fs) unreachable;
+        if (self.kind.isNot(.fs)) unreachable;
         var wd = try fsysAddWatch(self.id, path, mask);
         _ = wd;
     }
