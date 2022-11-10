@@ -64,7 +64,7 @@ pub const EventQueue = struct {
         if (0 == es.info.fs.event.mask) {
             unreachable;
         }
-        print("file system events = 0x{X:0>8}\n", .{es.info.fs.event.mask});
+        print("file system events = {b:0>32}\n", .{es.info.fs.event.mask});
         const ctz = @ctz(es.info.fs.event.mask);
         return @intCast(u4, ctz);
     }
