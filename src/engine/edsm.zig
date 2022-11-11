@@ -19,6 +19,12 @@ const FsysEvent = std.os.linux.inotify_event;
 pub const StageMachine = struct {
 
     const Self = @This();
+    const Error = error {
+        IsAlreadyRunning,
+        HasNoStates,
+        StageHasNoReflexes,
+    };
+    const StageList = std.ArrayList(Stage);
 
     name: []const u8 = undefined,
     namebuf: [32]u8 = undefined,
@@ -29,13 +35,6 @@ pub const StageMachine = struct {
     allocator: Allocator,
     data: ?*anyopaque = null,
 
-    const Error = error {
-        IsAlreadyRunning,
-        HasNoStates,
-        StageHasNoReflexes,
-    };
-
-    const StageList = std.ArrayList(StageMachine.Stage);
     pub const Stage = struct {
 
         const reactFnPtr = *const fn(me: *StageMachine, src: ?*StageMachine, data: ?*anyopaque) void;
@@ -161,7 +160,7 @@ pub const StageMachine = struct {
                 .action => |func| func(self, msg.src, msg.ptr),
                 .transition => |next_stage| {
                     if (current_stage.leave) |func| {
-                        func(self); // func(self, next_stage)?.. might be useful
+                        func(self);
                     }
                     self.current_stage = next_stage;
                     if (next_stage.enter) |func| {
