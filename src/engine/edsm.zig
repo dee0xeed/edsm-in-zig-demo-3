@@ -43,7 +43,7 @@ pub const StageMachine = struct {
 
         const ReflexKind = enum {
             action,
-            transition
+            transition,
         };
 
         pub const Reflex = union(ReflexKind) {
@@ -98,10 +98,17 @@ pub const StageMachine = struct {
         };
     }
 
-    pub fn onHeap(a: Allocator, md: *MessageDispatcher, name: []const u8, numb: u16) !*StageMachine {
+    pub fn onHeap(
+        a: Allocator,
+        md: *MessageDispatcher,
+        name: []const u8,
+        numb: u16,
+        comptime DataType: type
+    ) !*StageMachine {
         var sm = try a.create(StageMachine);
         sm.* = init(a, md);
         sm.name = try std.fmt.bufPrint(&sm.namebuf, "{s}-{}", .{name, numb});
+        sm.data = try a.create(DataType);
         return sm;
     }
 
