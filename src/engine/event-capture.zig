@@ -51,7 +51,7 @@ pub const EventQueue = struct {
 
         if (0 != events & EPOLL.IN) {
             var ba: u32 = 0;
-            _ = ioctl(es.id, FIONREAD, @ptrToInt(&ba)); // IOCINQ
+            _ = ioctl(es.id, FIONREAD, @intFromPtr(&ba)); // IOCINQ
             // see https://github.com/ziglang/zig/issues/12961
             es.info.io.bytes_avail = ba;
             return Message.D0;
@@ -65,8 +65,8 @@ pub const EventQueue = struct {
             unreachable;
         }
         print("file system events = {b:0>32}\n", .{es.info.fs.event.mask});
-        const ctz = @ctz(es.info.fs.event.mask);
-        return @intCast(u4, ctz);
+        const ctz: u4 = @intCast(@ctz(es.info.fs.event.mask));
+        return ctz;
     }
 
     fn getEventInfo(es: *EventSource, events: u32) !u4 {
@@ -91,7 +91,7 @@ pub const EventQueue = struct {
         const n = epollWait(self.fd, events[0..], wait_forever);
 
         for (events[0..n]) |ev| {
-            const es = @intToPtr(*EventSource, ev.data.ptr);
+            const es: *EventSource = @ptrFromInt(ev.data.ptr);
             const seqn = try getEventInfo(es, ev.events);
             const msg = Message {
                 .src = null,
@@ -117,7 +117,7 @@ pub const EventQueue = struct {
 
         var ee = EpollEvent {
             .events = em,
-            .data = EpollData{.ptr = @ptrToInt(es)},
+            .data = EpollData{.ptr = @intFromPtr(es)},
         };
 
         // emulate FreeBSD kqueue behavior
@@ -132,7 +132,7 @@ pub const EventQueue = struct {
     pub fn disableEventSource(self: *EventQueue, es: *EventSource) !void {
         var ee = EpollEvent {
             .events = 0,
-            .data = EpollData{.ptr = @ptrToInt(es)},
+            .data = EpollData{.ptr = @intFromPtr(es)},
         };
         try epollCtl(self.fd, EPOLL.CTL_MOD, es.id, &ee);
     }

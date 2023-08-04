@@ -28,6 +28,9 @@ pub const DirMon = struct {
 
     pub fn onHeap(a: Allocator, md: *MessageDispatcher, dir: []const u8) !*StageMachine {
         var me = try StageMachine.onHeap(a, md, "DirMon", 1, DirMonData);
+        var pd = util.opaqPtrTo(me.data, *DirMonData);
+        pd.dir = dir;
+
         try me.addStage(.{.name = "INIT", .enter = &initEnter, .leave = null});
         try me.addStage(.{.name = "WORK", .enter = &workEnter, .leave = &workLeave});
 
@@ -56,8 +59,6 @@ pub const DirMon = struct {
         work.setReflex(.sg, Message.S0, .{.action = &workS0});
         work.setReflex(.sg, Message.S1, .{.action = &workS0});
 
-        var pd = util.opaqPtrTo(me.data, *DirMonData);
-        pd.dir = dir;
         return me;
     }
 
